@@ -179,6 +179,7 @@ class Window_base < Gosu::Window
     super(Largeur, Hauteur, Full)
     self.caption = "#{Name} - #{Version} - Press escape to exit"
     @back = Gosu::Image.new(self, File_interface, true)
+    @wait_go = true
     #Nouvelle class
     @window_info = Window_info.new(self)
     @window_essence = Window_essence.new(self)
@@ -199,10 +200,15 @@ class Window_base < Gosu::Window
     @mouse.draw(self.mouse_x, self.mouse_y)
   end
   def choice_wood
-    $data_wood_choix += 1 if button_down?(Gosu::MsLeft) 
-    $data_wood_choix -= 1 if button_down?(Gosu::MsRight)
+    $data_wood_choix += 1 if button_down?(Gosu::MsLeft) && @wait_go == true
+    $data_wood_choix -= 1 if button_down?(Gosu::MsRight) && @wait_go == true
     $data_wood_choix %= 9
     $data_wood_choix = 2 if $data_wood_choix == 0
+    if button_down?(Gosu::MsRight) or button_down?(Gosu::MsLeft) 
+      @wait_go = false
+    else
+      @wait_go = true
+    end
   end
   def update
     @data_wood.update
