@@ -9,7 +9,7 @@ Name = "Logiciel atelier"
 Version = "0.0.0.6"
 Hauteur = 600
 Largeur = 800
-Full = true
+Full = false
 Font_base = "Bell MT"
 Font_bar = "Arial"
 File_interface = "Ressource/Interface.png"
@@ -62,6 +62,21 @@ module Coord
 
   #Divers
   Espace = 15
+end
+########################################################
+# * Classe de la database du bois                    * #
+# ID : nil                                             #
+########################################################
+class Data_wood
+  def initialize(ref)
+    @data_wood_name = Roo::Excelx.new("Data/Bois.xlsx")
+    $data_wood_choix = 2
+  end
+  def update
+    $dt_wood_name = @data_wood_name.cell($data_wood_choix, "A")
+    $dt_wood_mass = @data_wood_name.cell($data_wood_choix, "B").to_i
+    $dt_wood_price = @data_wood_name.cell($data_wood_choix, "C").to_i
+  end
 end
 
 ########################################################
@@ -134,9 +149,9 @@ class Window_essence
     @picture_essence_bar.draw_rot(Coord::Essence_x, Coord::Essence_y, 42, 0, 0, 0, Coord::Essence_width,  13, Color::Toolbar_name, :default)
     @essence_name.draw(Coord::Essence_x+5, Coord::Essence_y+1, 43, 1, 1, Color::Text_name)
     @essence_picture_list.draw(Coord::Essence_x, Coord::Essence_y+13, 44)
-    @essence_text_name.draw("-Nom : Hetre", Coord::Essence_x+5, (Coord::Essence_y+40)+Coord::Espace, 45, 1, 1, Color::Text_window)
-    @essence_text_poid.draw("-Poid : 710Kg/m3", Coord::Essence_x+5, (Coord::Essence_y+40)+(Coord::Espace*2), 46, 1, 1, Color::Text_window)
-    @essence_text_prix.draw("-Prix (m3): Inconu", Coord::Essence_x+5, (Coord::Essence_y+40)+(Coord::Espace*3), 47, 1, 1, Color::Text_window)
+    @essence_text_name.draw("-Nom : #{$dt_wood_name}", Coord::Essence_x+5, (Coord::Essence_y+40)+Coord::Espace, 45, 1, 1, Color::Text_window)
+    @essence_text_poid.draw("-Poid : #{$dt_wood_mass}", Coord::Essence_x+5, (Coord::Essence_y+40)+(Coord::Espace*2), 46, 1, 1, Color::Text_window)
+    @essence_text_prix.draw("-Prix (m3): #{$dt_wood_price}", Coord::Essence_x+5, (Coord::Essence_y+40)+(Coord::Espace*3), 47, 1, 1, Color::Text_window)
   end
 end
 
@@ -164,15 +179,17 @@ class Window_base < Gosu::Window
     super(Largeur, Hauteur, Full)
     self.caption = "#{Name} - #{Version} - Press escape to exit"
     @back = Gosu::Image.new(self, File_interface, true)
-
     #Nouvelle class
     @window_info = Window_info.new(self)
     @window_essence = Window_essence.new(self)
     @window_bordereau = Window_bordereau.new(self)
     @window_rendu = Window_rendu.new(self)
     @mouse = Mouse.new(self)
+    @data_wood = Data_wood.new(self)
   end
-  def button_down(id); close if id == Gosu::KbEscape; end
+  def button_down(id)
+    close if id == Gosu::KbEscape
+  end
   def draw
     @back.draw_rot(0, 0, -100, 0, 0, 0, Largeur, Hauteur, Color::Background, :default)
     @window_info.draw(self)
@@ -180,6 +197,16 @@ class Window_base < Gosu::Window
     @window_bordereau.draw
     @window_rendu.draw
     @mouse.draw(self.mouse_x, self.mouse_y)
+  end
+  def choice_wood
+    $data_wood_choix += 1 if button_down?(Gosu::MsLeft) 
+    $data_wood_choix -= 1 if button_down?(Gosu::MsRight)
+    $data_wood_choix %= 9
+    $data_wood_choix = 2 if $data_wood_choix == 0
+  end
+  def update
+    @data_wood.update
+    choice_wood
   end
 end
 
