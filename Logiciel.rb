@@ -25,7 +25,7 @@ module Color
   Toolbar = Gosu::Color.new(75, 75, 75)
   Toolbar_name = Gosu::Color.new(55, 55, 55)
   Rendu_color = Gosu::Color.new(25, 50, 75)
-
+  Choice_bar = Gosu::Color.new(0, 255, 0)
   #Color text
   Text_info = Gosu::Color.new(85, 85, 85)
   Text_name = Gosu::Color.new(10, 10, 10)
@@ -34,30 +34,23 @@ end
 
 #------------------------------------------------------#
 # * Module taille/position des fenetre d'interface   * #
+# Variable = [Largeur, Hauteur, x, y]                  #
 #------------------------------------------------------#
 module Coord
-  #Window info
-  Info_width = Largeur
-  Info_height = 13
-  Info_x = 0
-  Info_y = Hauteur-Info_height
-
-  #Window essence
-  Essence_width =  240
-  Essence_height = 120
-  Essence_x = 20 
-  Essence_y = 20
+  
+  Info_inf = [Largeur , 13, 0, Hauteur-13] #Window info
+  Essence_inf = [240, 120, 20, 20] #Window essence
 
   #Window bordereau
   Bordereau_width = 240
-  Bordereau_height =  160#Hauteur-Info_height-Essence_height-60
+  Bordereau_height =  400#Hauteur-Info_height-Essence_height-60
   Bordereau_x = 20
   Bordereau_y = 160
 
   #Window Rendu
   Rendu_width = 500
   Rendu_height = 540
-  Rendu_x = Essence_width+40 
+  Rendu_x = Coord::Essence_inf[0]+40
   Rendu_y = 20
 
   #Divers
@@ -95,9 +88,13 @@ end
 class Window_rendu
   def initialize(ref)
     @picture_rendu = Gosu::Image.new(ref, File_interface, true)
+    @picture_rendu_bar = Gosu::Image.new(ref, File_interface, true)
+    @picture_rendu_name = Gosu::Image.from_text(ref, "Apercus de l'objet", Font_bar, 12)
   end
   def draw
     @picture_rendu.draw_rot(Coord::Rendu_x, Coord::Rendu_y, 1, 0, 0, 0, Coord::Rendu_width,  Coord::Rendu_height, Color::Rendu_color, :default)
+    @picture_rendu_bar.draw_rot(Coord::Rendu_x, Coord::Rendu_y, 2, 0, 0, 0, Coord::Rendu_width,  13, Color::Toolbar_name, :default)
+    @picture_rendu_name.draw(Coord::Rendu_x+5, Coord::Rendu_y+1, 3, 1, 1, Color::Text_name)
   end
 end
 
@@ -138,6 +135,7 @@ class Window_essence
   def initialize(ref)
     @picture_essence = Gosu::Image.new(ref, File_interface, true)
     @picture_essence_bar = Gosu::Image.new(ref, File_interface, true)
+    @picture_choice = Gosu::Image.new(ref, File_interface, true)
     @essence_name = Gosu::Image.from_text(ref, "Essence de bois", Font_bar, 12)
     @essence_picture_list = Gosu::Image.new(ref, "Ressource/Essence.png", true)
     @essence_text_name = Gosu::Font.new(ref, Font_base, 16)
@@ -145,13 +143,15 @@ class Window_essence
     @essence_text_prix = Gosu::Font.new(ref, Font_base, 16)
   end
   def draw
-    @picture_essence.draw_rot(Coord::Essence_x, Coord::Essence_y, 41, 0, 0, 0, Coord::Essence_width,  Coord::Essence_height, Color::Toolbar, :default)
-    @picture_essence_bar.draw_rot(Coord::Essence_x, Coord::Essence_y, 42, 0, 0, 0, Coord::Essence_width,  13, Color::Toolbar_name, :default)
-    @essence_name.draw(Coord::Essence_x+5, Coord::Essence_y+1, 43, 1, 1, Color::Text_name)
-    @essence_picture_list.draw(Coord::Essence_x, Coord::Essence_y+13, 44)
-    @essence_text_name.draw("-Nom : #{$dt_wood_name}", Coord::Essence_x+5, (Coord::Essence_y+40)+Coord::Espace, 45, 1, 1, Color::Text_window)
-    @essence_text_poid.draw("-Poid : #{$dt_wood_mass}", Coord::Essence_x+5, (Coord::Essence_y+40)+(Coord::Espace*2), 46, 1, 1, Color::Text_window)
-    @essence_text_prix.draw("-Prix (m3): #{$dt_wood_price}", Coord::Essence_x+5, (Coord::Essence_y+40)+(Coord::Espace*3), 47, 1, 1, Color::Text_window)
+    @picture_essence.draw_rot(Coord::Essence_inf[2], Coord::Essence_inf[3], 41, 0, 0, 0, Coord::Essence_inf[0],  Coord::Essence_inf[1], Color::Toolbar)
+    @picture_essence_bar.draw_rot(Coord::Essence_inf[2], Coord::Essence_inf[3], 42, 0, 0, 0, Coord::Essence_inf[0],  13, Color::Toolbar_name)
+    @picture_choice.draw_rot($position_x_choice , Coord::Essence_inf[3]+13, 48, 0, 0, 0, 20, 20, Color::Choice_bar)
+    @essence_name.draw(Coord::Essence_inf[2]+5, Coord::Essence_inf[3]+1, 43, 1, 1, Color::Text_name)
+    @essence_picture_list.draw(Coord::Essence_inf[2], Coord::Essence_inf[3]+13, 44)
+    @essence_text_name.draw("-Nom : #{$dt_wood_name}", Coord::Essence_inf[2]+5, (Coord::Essence_inf[3]+40)+Coord::Espace, 45, 1, 1, Color::Text_window)
+    @essence_text_poid.draw("-Poid (m3): #{$dt_wood_mass} Kg", Coord::Essence_inf[2]+5, (Coord::Essence_inf[3]+40)+(Coord::Espace*2), 46, 1, 1, Color::Text_window)
+    @essence_text_prix.draw("-Prix (m3): #{$dt_wood_price} E", Coord::Essence_inf[2]+5, (Coord::Essence_inf[3]+40)+(Coord::Espace*3), 47, 1, 1, Color::Text_window)
+
   end
 end
 
@@ -165,8 +165,8 @@ class Window_info
     @text_info  = Gosu::Font.new(ref, Font_bar, 12)
   end 
   def draw(ref)
-    @picture_info.draw_rot(Coord::Info_x, Coord::Info_y, 61, 0, 0, 0, Coord::Info_width,  Coord::Info_height, Color::Info, :default)
-    @text_info.draw("Version : #{Version} <> Resolution : #{Hauteur}/#{Largeur} <> Database : nill <> Mouse x = #{ref.mouse_x.to_i}/ Mouse y = #{ref.mouse_y.to_i}",Coord::Info_x+5, Coord::Info_y+1, 62, 1, 1, Color::Text_info)
+    @picture_info.draw_rot(Coord::Info_inf[2], Coord::Info_inf[3], 61, 0, 0, 0, Coord::Info_inf[0], Coord::Info_inf[1], Color::Info, :default)
+    @text_info.draw("Version : #{Version} <> Resolution : #{Hauteur}/#{Largeur} <> Database : nil",Coord::Info_inf[2]+5, Coord::Info_inf[3]+1, 62, 1, 1, Color::Text_info)
   end
 end
 
@@ -188,9 +188,7 @@ class Window_base < Gosu::Window
     @mouse = Mouse.new(self)
     @data_wood = Data_wood.new(self)
   end
-  def button_down(id)
-    close if id == Gosu::KbEscape
-  end
+  def button_down(id); close if id == Gosu::KbEscape; end
   def draw
     @back.draw_rot(0, 0, -100, 0, 0, 0, Largeur, Hauteur, Color::Background, :default)
     @window_info.draw(self)
@@ -203,12 +201,14 @@ class Window_base < Gosu::Window
     $data_wood_choix += 1 if button_down?(Gosu::MsLeft) && @wait_go == true
     $data_wood_choix -= 1 if button_down?(Gosu::MsRight) && @wait_go == true
     $data_wood_choix %= 9
+    $data_wood_choix = 8 if $data_wood_choix == 1
     $data_wood_choix = 2 if $data_wood_choix == 0
     if button_down?(Gosu::MsRight) or button_down?(Gosu::MsLeft) 
       @wait_go = false
     else
       @wait_go = true
     end
+    $position_x_choice = Coord::Essence_inf[2] * $data_wood_choix -20
   end
   def update
     @data_wood.update
